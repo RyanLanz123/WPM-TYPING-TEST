@@ -1,6 +1,7 @@
 import curses
 from curses import wrapper
 import time
+import random
 
 def start_screen(stdscr):
     stdscr.clear()
@@ -24,8 +25,16 @@ def display_text(stdscr, target, current, wpm=0):
     # Display WPM
     stdscr.addstr(1, 0, f"WPM: {wpm}")
 
+def load_text():
+    try:
+        with open("text.txt", "r") as f:
+            lines = f.readlines()
+            return random.choice(lines).strip()
+    except FileNotFoundError:
+        return "Add a text.txt file to load sample texts."
+
 def wpm_test(stdscr):
-    target_text = "Hello world"
+    target_text = load_text()
     current_text = []
     wpm = 0
     start_time = time.time()
@@ -45,7 +54,7 @@ def wpm_test(stdscr):
 
         try:
             key = stdscr.getkey()
-        except:
+        except curses.error:
             continue
 
         if ord(key) == 27:  # Escape key to exit
@@ -64,9 +73,10 @@ def main(stdscr):
     start_screen(stdscr)
     while True:
         wpm_test(stdscr)
-        stdscr.addstr(2, 0, "You completed the text! Press any key to continue")
+        stdscr.clear()
+        stdscr.addstr(2, 0, "You completed the text! Press any key to continue or ESC to quit.")
         key = stdscr.getkey()
-        if ord(key) == 27:
+        if ord(key) == 27:  # ESC to quit
             break
 
 # Ensure the wrapper is called at the top level
